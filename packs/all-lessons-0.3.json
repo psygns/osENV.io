@@ -1,0 +1,602 @@
+{
+ "osenv_lesson_pack": 1,
+ "from": "every osenv 0.2-0.3 run on both VMs (ladder, 0.3.0, rc1, video bench, light rc7, light rc8)",
+ "made": "2026-09-24T22:19:33Z",
+ "lessons": [
+  {
+   "text": "Pass an onerror callback to os.walk that prints the warning to stderr, so an unreadable directory is reported instead of silently dropped.",
+   "detect": "The action calls os.walk(folder) without an onerror argument in a tool that must warn about anything it cannot read.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "Capture gate evidence as a shell transcript (command line + redirect + exit code echoed by the shell) instead of typing section labels around captured output.",
+   "detect": "The action types section headers or 'exit=' lines into an evidence file instead of letting the shell command produce them.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "When validating untrusted JSON structure, validate every element (each item is a dict carrying an int id) before dereferencing it, and route any malformed-but-valid JSON to the same clean stderr error + exit 1 path used for invalid JSON.",
+   "detect": "The action guards that a JSON container is a list and then calls .get() or indexes its elements on a later line without checking each element's type.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "Never treat str.isdigit() (or isdecimal/isnumeric) as proof that a string is a plain integer: int() rejects some of those characters and accepts 1_0, +1 and spaces. Require re.fullmatch(r'[0-9]+', s) before int(); try/except ValueError alone is not validation (see L8).",
+   "detect": "The code checks `x.isdigit()` and then calls `int(x)` to choose between 404/400 and success, with no try/except and no ASCII-only restriction.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "When a test claims a specific rule, feed it an input that actually reaches that branch, and assert enough to prove which branch answered.",
+   "detect": "A parametrized bad-id test includes an empty string so the URL becomes '/books/' (no segment) and it passes through the generic unknown-path 404 while claiming to test the id rule.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "Validate a user-supplied integer with re.fullmatch(r'[0-9]+', s) before int() (not \\d, which matches Unicode digits, and not isdigit()); try/except ValueError alone is not validation, because int() also accepts 1_0, +1, surrounding spaces and non-ASCII digits. Apply it at every call site that parses user input, path ids and query params alike.",
+   "detect": "The action parses a user-supplied string with int() and treats only a ValueError as invalid, without first requiring it to match ASCII digits [0-9]+.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "A regression test for a reject rule must use inputs the buggy code would wrongly ACCEPT, in a state where accepting them changes the answer (e.g. seed 10 books before asserting GET /books/1_0 is 404), and cover the whole input class at every call site, not only the one example the reviewer reported.",
+   "detect": "The action adds a regression test that checks only the single bad input a reviewer reported, not the other inputs the same parse wrongly accepts.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "When capturing a full-page screenshot with headless Firefox, set the window height to at least the document height and verify the page's last element (the footer) appears at the bottom of the PNG before treating the capture as full-page.",
+   "detect": "The action takes a 'full-page' screenshot with a guessed or previously-used --window-size height instead of re-measuring the document height after the latest page change.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "Render histograms of continuous variables with contiguous bars (no gaps between equal-width bins); reserve gapped bars for categorical bar charts.",
+   "detect": "The action renders a histogram with visible gaps between bins, reusing the categorical bar chart's bar spacing.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "Choose each axis maximum as the smallest nice round tick above the data maximum so the plotted series fills most of the plot area.",
+   "detect": "The action sets one chart's axis maximum to a round number well above its data maximum (e.g. 400 for a 310 max) while sibling charts on the same page use a tight axis, leaving a large empty band in that plot.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "Values read from a user-writable JSON file must be type-checked (coerced or the entry dropped) before they are sorted or %d-formatted, and the write/format path must catch TypeError as well as OSError/ValueError.",
+   "detect": "The action sorts or %d-formats a value that came straight out of json.load without checking its type.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "A 'corrupt input file' test must cover well-formed JSON with wrong types, not only syntactically invalid text.",
+   "detect": "The action writes a corrupt-file test whose fixture is only invalid syntax.",
+   "severity": "nudge",
+   "catches": 1,
+   "escapes": 0
+  },
+  {
+   "text": "A test must exercise behavior through the public path, not restate the constant it is meant to guard.",
+   "detect": "The action writes a test that compares a module constant to the same literal it was defined with.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "A code review verdict must state what was actually run and the result, not just a summary.",
+   "detect": "The action writes a code review verdict (not a visual review of screenshots or renders) that says the code passed or works without citing a command it ran and that command's output.",
+   "severity": "nudge",
+   "catches": 2,
+   "escapes": 0
+  },
+  {
+   "text": "Import only names the module actually uses; never leave a name in an import list with no use site.",
+   "detect": "The action adds/moves code so a previously used import becomes unused, and does not remove it.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "A shipped test should not hard-depend on task scaffolding; either inline the expectation or skip when the external file is missing.",
+   "detect": "The action writes a test whose import/path points at a scaffold file outside the package under test.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "Re-state reproduced gate numbers so the next worker does not redo the verification.",
+   "detect": "The action re-runs an already-verified gate without new reason.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "Before STEP DONE, act on every code-review finding, including LOW or optional ones: fix it, or answer it in NOTES with a reason. Calling a finding non-blocking or listing it under WEAK is not acting on it.",
+   "detect": "The action posts STEP DONE while a code-review finding is neither fixed nor answered in NOTES.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "A test shipped in the deliverable folder reads nothing outside that folder and does not depend on the cwd: freeze expectations inline and build paths from __file__. Prove it by running pytest on a copy of the folder with no .osenv next to it, from two different cwds.",
+   "detect": "The action writes a test in the deliverable folder that opens a file under .osenv/ or builds a path relative to the current working directory.",
+   "severity": "nudge",
+   "catches": 2,
+   "escapes": 0
+  },
+  {
+   "text": "Every integer parsed from user input must be range-checked against the SQLite 64-bit limit (<= 9223372036854775807, i.e. 2**63-1) before it is bound to a query.",
+   "detect": "The action parses a user-supplied integer (digits regex or int()) and binds it straight into a sqlite3 execute() without an upper-bound check.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "When catching parse errors from untrusted input, include RecursionError: deeply nested JSON makes json.loads raise RecursionError, which an except (UnicodeDecodeError, json.JSONDecodeError) tuple does not catch, so the handler thread dies with no HTTP response.",
+   "detect": "The action wraps json.loads over request data in `except (UnicodeDecodeError, json.JSONDecodeError)` and treats that as covering all malformed input.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "When a transcript echoes the command it ran, keep the quoting exact (printf '%q ' per arg, or echo the already-quoted string) so the printed line replays to the same result.",
+   "detect": "The action echoes a command with `$*` (or otherwise drops quoting), so the printed line differs from the argv that actually executed.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "On Windows PowerShell 5.1, save a command's output with cmd /c \"<command> > <file> 2>&1\" (set $env:PYTHONUTF8='1' for Python) or with | Out-File -Encoding utf8 <file>, never with PowerShell's own > or >>, bare Out-File, or Tee-Object -FilePath (they write UTF-16LE); then check the file has no ff fe BOM and 0 NUL bytes before claiming it.",
+   "detect": "The action writes a command's output to a file with a bare > or >> redirect that is not wrapped in cmd /c (on this Windows machine the shell is PowerShell 5.1, so a bare > writes UTF-16), or with Tee-Object -FilePath, or with Out-File or Set-Content without -Encoding utf8.",
+   "severity": "kick",
+   "catches": 3,
+   "escapes": 0
+  },
+  {
+   "text": "Before posting STEP DONE that says a review's fixes are merged, read the reviewer's own report (review-<reviewer>.md) and kicks-<reviewer>.txt and tick off every numbered fix against the code; a fix Jev dropped from FEEDBACK is still judged by the desk, so apply it or post ASK DESK, never skip it silently.",
+   "detect": "The action posts STEP DONE saying a review is fully merged although the agent has not checked every fix listed in the reviewer review file and kicks file against the code.",
+   "severity": "nudge",
+   "catches": 1,
+   "escapes": 1
+  },
+  {
+   "text": "When reading a CSV into rows for a table, drop all-empty rows before counting data rows or summing columns.",
+   "detect": "The action counts or sums CSV rows without first discarding blank/empty lines.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "Prove a full-page screenshot by showing the bottom edge of the PNG contains the document's last content line, plus one viewport-height control capture that is visibly cut off.",
+   "detect": "The action claims a screenshot captures the whole page based only on the PNG's pixel dimensions or the tool's stdout, without looking at the bottom of the image.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "A tool that has an external program write an output file must have it write to a fresh temp name, verify that file, then os.replace it onto the output path. Checking the final path after the run lets a stale file from an earlier run pass as written, because programs like firefox --screenshot can exit 0 without writing.",
+   "detect": "The action writes a tool that runs an external program and then checks the output file at its final path, so a file left from an earlier run would pass as freshly written.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "Before posting STEP DONE on a tool, force every failure the job promises to report (e.g. non-zero exit if the output was not written) with the output file already present, e.g. a fake program on PATH that exits 0 without writing, and show the non-zero exit, the message and the old file untouched.",
+   "detect": "The action posts STEP DONE for a tool whose job promises a non-zero exit on a failure, while no run so far forced that failure with the output file already present.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "A verifier must never report success when it compared nothing: fail, or print an explicit 'nothing verified', when the checked/compared counter is 0.",
+   "detect": "The action reaches a pass/OK line and exit 0 in a checker whose checked/compared counter is still 0.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "When placing text under an image on a Tk canvas, reserve a label band sized from font metrics and draw the text inside it, never at a hardcoded y that can collide with the image edge.",
+   "detect": "The action draws canvas label text at a fixed pixel offset below an image without measuring the image or the font, so the text overlaps the image edge.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "Before keeping a proof screenshot of an in-progress state, open the image and confirm it actually shows mid-progress (partly filled bar, label above 0%); if it still shows the initial state, slow the operation or delay the shot and retake.",
+   "detect": "The action keeps a 'mid-way' progress screenshot whose bar and label still show the initial 0%/empty state.",
+   "severity": "nudge",
+   "catches": 2,
+   "escapes": 0
+  },
+  {
+   "text": "Use find_overlapping() or bbox() for a Tk Canvas hit test; find_closest() always returns the nearest item and is not a hit test.",
+   "detect": "The action decides whether the mouse hit a canvas item with tkinter Canvas find_closest().",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "A file whose writer buffers and closes at the end does not grow during the run; sample it once to confirm before using its size as a progress signal.",
+   "detect": "The action uses os.path.getsize() on a render's .part.mp4 to infer encode progress.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "Do not assume argv[0] is the program name in a main(argv) that a dispatcher calls - check what the caller passes.",
+   "detect": "The action reads args[1] as an input file without checking the caller's argv convention.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "Before posting a result or STEP DONE, open the proof images the LAST run wrote and quote every number or visual claim from them; a re-run overwrites earlier shots, and a log line or an earlier view is not the image.",
+   "detect": "The action posts a board message quoting numbers or visual states of proof screenshots (a percent, a colour, a preview shown) that the agent has not opened since the last run that rewrote them.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "When the job says to import a module another hybrid owns, never add a fallback copy of it (its own ffprobe call, its own JSON writer); if the module is missing, build and test what does not need it and check again later.",
+   "detect": "The action writes code that re-implements, as a fallback, a module the job says another hybrid owns and the agent must only import.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "A gate test must call the function the program actually runs; when a helper is superseded, delete it and move its tests to the live function.",
+   "detect": "The action adds or keeps tests for a helper function that the application code no longer calls.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "A GUI drive acts only on the window it launched: snapshot the matching window ids before starting the program, take the new id as its own and any other new id as its dialog, activate and confirm its own window before every key or type, and close only its own id and PID, never windows found by title alone.",
+   "detect": "The action closes, activates or sends keys to windows picked by a title search (xdotool search --name) rather than by the window id its own launch produced.",
+   "severity": "nudge",
+   "catches": 1,
+   "escapes": 0
+  },
+  {
+   "text": "A proof screenshot shows only your own program: when a dialog must be in the shot, crop the root grab to your window rectangle (import -window root -crop WxH+X+Y +repage) instead of keeping a whole-screen grab that records other windows.",
+   "detect": "The action saves an uncropped whole-screen screenshot (import -window root) as a proof file.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "Check a gate exactly as the job words it (e.g. pgrep -a ffmpeg finds nothing); if the literal check cannot work on a shared machine, log what it found and say on the board why you narrowed it, never narrow it silently.",
+   "detect": "The action implements a job gate with a narrower check than the job states (e.g. pgrep -f on its own marker instead of pgrep -a ffmpeg) without saying so on the board.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "When a fix replaces a helper or logic path, delete the superseded helper in the same change and grep that nothing calls it; an unused copy of the old buggy logic is a defect the desk fails, not optional hygiene to leave.",
+   "detect": "The action posts STEP DONE while a dead or superseded helper that a reviewer flagged in NOTES FEEDBACK is still in the code.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "Make the package under test importable (add __init__.py up the chain, or a pytest pythonpath setting) instead of relying on `python -m pytest` adding the cwd to sys.path.",
+   "detect": "The action writes a test file importing a project package by dotted name, e.g. `from slug.slugify import slugify`, while no __init__.py or pytest pythonpath config exists.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "Word non-ASCII examples in source as escapes or as ASCII wording, because an ASCII-only write drops the literal character.",
+   "detect": "The action writes a docstring or comment containing a literal non-ASCII character such as é.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "Regenerate the saved gate output in the same step as any change to the code it proves.",
+   "detect": "The action edits slug/slugify.py or slug/tests/ without re-running `python -m pytest slug -v` and rewriting slug/pytest-output.txt.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "When a required behavior change contradicts an existing test's assertion, either update that assertion to the new spec and flag the conflict to the desk, or leave it failing and escalate; never weaken, skip or delete it silently.",
+   "detect": "The action edits an existing test's assertion (or skips/deletes the test) when the job says the existing tests must pass unchanged.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "Error-message examples should name the command the user actually ran, not a hardcoded one.",
+   "detect": "The action builds an error example string with a hardcoded command name inside a helper shared by more than one command.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "After regenerating a rendered asset, view the whole frame and compare neighbouring surfaces of the same material for unexplained value jumps before accepting it as evidence or shipping it.",
+   "detect": "The action accepts a freshly rendered image as evidence or ships it as an asset without viewing the full frame for shading seams or wedge artifacts.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "After capturing a headless browser screenshot as evidence, view the frame and retake it if any region that should contain page content is unpainted white, and match the capture height to the content height.",
+   "detect": "The action saves a headless browser screenshot as review evidence without viewing the frame for unpainted white bands or dead space beyond the page content.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "Vendor the library's public entry build, not a hand-copied internal sub-file, and prove the entry exports the symbols the page imports before shipping.",
+   "detect": "The action points an importmap entry at a copied library sub-file (e.g. three.core.js) instead of the package entry build (three.module.js).",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "A failed capability check must report the error it actually caught; never relabel an unknown error as one specific environmental cause.",
+   "detect": "The action writes a catch block whose message names a single cause (e.g. 'WebGL is not available') without including the caught error object.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "A gate must verify the thing behaves, not only that the referenced files exist.",
+   "detect": "The action writes a test or gate whose only check is that files or paths exist (os.path.exists, Test-Path, ls) and that never checks what they contain or do.",
+   "severity": "nudge",
+   "catches": 1,
+   "escapes": 0
+  },
+  {
+   "text": "Do not conclude a platform capability is missing when the only evidence comes from a build that was itself broken; isolate the capability in a small independent probe first.",
+   "detect": "The action records that WebGL (or another browser feature) is unavailable on the box, based on shots or notes taken from a page that also had a code-level failure.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "When a visual fix is asked for a scene that is shown two ways (live render and static fallback image), make it in the live scene source and derive the static image from that same scene, so the two never drift apart.",
+   "detect": "The action applies a reviewer visual fix (scale, pose, framing, ground or lighting) to only one of two renderings of the same scene, for example it edits the fallback-image renderer while the live scene code stays unchanged.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "A gate for runtime behaviour must run the thing and read the state it asserts (for a page: load it in headless Edge with --enable-logging and read a console line carrying data-mode); grepping the source for the code that sets that state is not a check.",
+   "detect": "The action adds or edits a check that asserts a runtime state (live mode, ready, rendered) by searching source files for the code that sets it, instead of running the page and reading that state.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "Scroll-driven 3D must stay on screen while the sections that drive it are read (sticky or fixed stage, one scroll step per target), and its evidence must be a normal-height viewport actually scrolled to each section, never a tall window from the top.",
+   "detect": "The action captures a screenshot meant to show a scroll-driven 3D state (the camera focus for a section) using a window taller than a real screen from the document top, instead of a normal-height viewport scrolled to that section.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "Before starting a server on a fixed port, confirm the port is not already LISTENING; on Windows SO_REUSEADDR lets a second bind succeed silently.",
+   "detect": "The action runs a command that starts a server on a fixed port, and neither this action nor the recent actions check that the port is free first. Writing the server's code or checking its health is not starting it.",
+   "severity": "nudge",
+   "catches": 1,
+   "escapes": 0
+  },
+  {
+   "text": "On a narrow screen, keep identifier and numeric table columns on one line and let only the free-text column wrap, instead of shrinking the font and letting every column wrap.",
+   "detect": "The action handles a narrow-screen table by shrinking the font and allowing every column, including names and numbers, to wrap onto multiple lines.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "Use zebra striping only while table rows are single-line; where rows wrap to several lines on narrow screens, separate rows with hairline borders instead of alternating fills.",
+   "detect": "The action applies alternating row backgrounds to a table whose rows wrap to multiple lines on narrow screens.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "Before restyling visible labels on a page with a cell-for-cell gate check, confirm whether the check compares the label row, and when it does change presentation through CSS only.",
+   "detect": "The action edits visible header or label text on a page whose proof gate compares the rendered table cell for cell against the source CSV.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "When rendering tabular data as an HTML table, right-align numeric columns and their headers so digits line up for comparison.",
+   "detect": "The action styles an HTML table of numeric data and leaves the numeric columns at the default left alignment.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "Never kill a process you did not start to free a named port; serve the gate on a free port through the app's own port flag and report the deviation.",
+   "detect": "The action is about to kill or free a foreign process holding a named port, or to serve a gate on a port already occupied.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "When proof mutate reports survivors, check whether the mutated line is executable first; docstring or string-text survivors are not coverage gaps.",
+   "detect": "The action treats a proof mutate survivor as a missing test without checking that the mutated line is executable code.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "When right-aligning numeric table columns, also set font-variant-numeric: tabular-nums so the digits line up in true columns under any system font.",
+   "detect": "The action right-aligns numeric table columns without enabling tabular figures, leaving digits off-column.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "A driver that injects OS input must confirm the target window is foreground before injecting, and must fail loudly when it cannot.",
+   "detect": "The code calls SetForegroundWindow or otherwise focuses a window and then injects input without checking GetForegroundWindow.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "After any widget layout change, crop the screenshot proofs at native resolution and confirm every user-visible label is fully legible and overlaps neither images nor other labels before declaring the shots done.",
+   "detect": "The action re-takes or approves screenshot proofs after a layout change without cropping to native resolution to check that label lines collide with the image or each other.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "On Windows, cancel another process with Ctrl+Break via signal.CTRL_BREAK_EVENT (or GenerateConsoleCtrlEvent(1, pid)); signal.SIGBREAK means TerminateProcess, not Ctrl+Break.",
+   "detect": "The action calls os.kill(pid, signal.SIGBREAK) to cancel a Windows child process.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "When a check means 'no temp file left', enumerate every temp path the code can create, not only the main .partial file.",
+   "detect": "The action verifies cleanup by listing only the output's .partial path and ignores the .ffmpeg.log sibling the code also writes.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "Declare restype/argtypes (c_void_p for HWND/HANDLE) on Win32 ctypes calls; the default c_int truncates 64-bit handles.",
+   "detect": "The action compares a ctypes Win32 call's return value with an HWND without having declared that call's restype.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "When polling a sub-second operation in an e2e, keep each poll to the minimum number of spawned processes; a fresh process per check can outlive the operation.",
+   "detect": "The action writes test code that polls a fast operation in a loop and starts a new process (subprocess, curl) on every pass of that loop; a shell loop that re-runs a whole test suite is not polling.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "When a job names N items to change or verify, prove each named item in a real run; a shared code path is not evidence that a named item was exercised.",
+   "detect": "The action treats one shared helper as proof for a named item (a dialog, a mode, a state, a label) that no run actually opens or drives.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "Validate a numeric field with float() AND math.isfinite(), and serialize with json.dumps(..., allow_nan=False) so NaN/Infinity can never reach JSON output.",
+   "detect": "The action writes code that turns a numeric input field into a number with float() and never rejects nan or inf (no math.isfinite check and no Decimal is_finite check).",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "Range-check a CLI integer (for example 0 <= port <= 65535) before passing it to a socket or HTTPServer.",
+   "detect": "The code passes an int() CLI value straight into HTTPServer/bind without a range check.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "A test must assert the behaviour its name claims, not a weaker proxy.",
+   "detect": "A test named ..._never_listens (or similar) asserts only an exit code or an error string and never checks the socket/port state.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "When the spec fixes an output ordering, assert the key order explicitly (list(parsed.keys())), not just parsed-dict equality, which ignores order.",
+   "detect": "A test checks required ordered output only by comparing parsed dicts.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "When a parser can raise its own error type during iteration (csv.Error and similar), catch it with the decode/OS errors and convert it to the module's clean error, so no library exception leaks as a traceback.",
+   "detect": "A read/parse loop catches only UnicodeDecodeError or only OSError while the parser can raise its own error type mid-iteration.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "To prove a subprocess never listened on a port, connect while it is still alive (Popen + poll-connect until exit); a connect issued after subprocess.run returns is always refused because the process has already exited.",
+   "detect": "A test runs a bad-input server with subprocess.run and then asserts the connection is refused.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "Verify an import from where the real consumer will import it (the project root), not only under the extra sys.path entry pytest adds.",
+   "detect": "A test imports the module under a bare name that resolves only because pytest prepended the source directory to sys.path.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "When a gate says show a terminal listing (e.g. running processes), save the listing as a proof file, not as prose in NOTES or the board.",
+   "detect": "The run claims a clean process listing in NOTES/board while no proof file contains a process listing.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "When rendering text in a window or screenshot, leave a small uniform margin around the text block so no glyph touches the edge of the render.",
+   "detect": "The action packs or places text widgets with no padding, letting the window or image size itself exactly to the text bounds.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "When a held park or a STATE order names a file you must not change (the desk's own file, or one outside your job's folders), leave it and give the reason in one STATE line, but still write - WAITING: desk review as the first line under ## STATE and STOP. A STEP DONE post alone never parks the seat: without that line you are re-run with nothing new.",
+   "detect": "The action posts STEP DONE, or logs the task as parked in NOTES, while the first line under ## STATE is still an unresolved order (such as the osenv FIX BEFORE STEP DONE line) rather than - WAITING: desk review.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "Any failure while reading or parsing an input file (decode, csv parse) must be converted into the module's documented error type so the CLI prints 'error: <message>' and exits 2, never a traceback.",
+   "detect": "The action opens and iterates a data file without a try/except that maps decode or csv parsing errors into its own error type.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "Assert the exact expected text in a message (a specific marker such as '(line 2)'), not a bare digit or short substring that can match unrelated text.",
+   "detect": "The action asserts a one-character or bare-number substring is in an error message instead of the exact expected wording.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "A failing fresh test run is a failure even when an older gate file says pass: rerun the suite about 20 times to measure it, fix the cause or make the test deterministic, redo the gate proof, and list it in WEAK.",
+   "detect": "The action writes a note or board post that calls a failing test run a transient or environment flake and keeps an older passing gate file as the proof, without rerunning, fixing or reporting it.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "After a held STEP DONE is answered (the flagged problem fixed, or checked and shown not to apply), park again in the same run: post STEP DONE again with WEAK, put - WAITING: desk review back as the first line under STATE, and stop.",
+   "detect": "The action rewrites the STATE section after a held STEP DONE and leaves out the - WAITING: desk review first line, so the run ends without parking.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 0
+  },
+  {
+   "text": "Sum and round money with decimal.Decimal and quantize(Decimal('0.01'), rounding=ROUND_HALF_UP), never round(value, 2) on a float: a binary float moves exact decimal halves (2.675 rounds to 2.67).",
+   "detect": "The action writes code that adds up or rounds money amounts as binary floats (float() values summed, or round(value, 2) on a float) instead of decimal.Decimal.",
+   "severity": "nudge",
+   "catches": 0,
+   "escapes": 2
+  }
+ ]
+}

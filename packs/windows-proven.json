@@ -1,0 +1,21 @@
+{
+  "osenv_lesson_pack": 1,
+  "from": "osenv-windows-ladder",
+  "made": "2026-09-24T14:35:01Z",
+  "lessons": [
+    {
+      "text": "On Windows PowerShell 5.1, save a command's output with cmd /c \"<command> > <file> 2>&1\" (set $env:PYTHONUTF8='1' for Python) or with | Out-File -Encoding utf8 <file>, never with PowerShell's own > or >>, bare Out-File, or Tee-Object -FilePath (they write UTF-16LE); then check the file has no ff fe BOM and 0 NUL bytes before claiming it.",
+      "detect": "The action writes a command's output to a file with a bare > or >> redirect that is not wrapped in cmd /c (on this Windows machine the shell is PowerShell 5.1, so a bare > writes UTF-16), or with Tee-Object -FilePath, or with Out-File or Set-Content without -Encoding utf8.",
+      "severity": "kick",
+      "catches": 3,
+      "escapes": 0
+    },
+    {
+      "text": "Before posting STEP DONE that says a review's fixes are merged, read the reviewer's own report (review-<reviewer>.md) and kicks-<reviewer>.txt and tick off every numbered fix against the code; a fix Jev dropped from FEEDBACK is still judged by the desk, so apply it or post ASK DESK, never skip it silently.",
+      "detect": "The action posts STEP DONE saying a review is fully merged although the agent has not checked every fix listed in the reviewer review file and kicks file against the code.",
+      "severity": "nudge",
+      "catches": 1,
+      "escapes": 0
+    }
+  ]
+}
